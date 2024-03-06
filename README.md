@@ -22,12 +22,12 @@ The context can be obtained in 3 different ways:
     - eg. "`What is the purpose of the function sir_this_is_a_wendys?`"
 - question with a context hint: 
     - use nearest neighbor search to find the code pieces most similar to the context hint
-    - remove the context hint and use the remainder of the question for answering
+    - remove the context hint and use the remainder for question answering
     - eg. "`Wendy: What is the purpose of the function sir_this_is_a_wendys?`"
     - here `Wendy` is the context hint, and `What is the purpose of the function sir_this_is_a_wendys?` is the question
 - question with a regular expression context hint:
     - use the regular expression to find the code pieces that match the regular expression
-    - remove the context hint and use the remainder of the question for answering
+    - remove the context hint and use the remainder for question answering
     - eg. "`'^cl..s Wendys?': What is the purpose of the function sir_this_is_a_wendys?`"
     - here `^cl..s Wendys?` is the regex context hint, and `What is the purpose of the function sir_this_is_a_wendys?` is the question. Note the single quotes around the regex context hint.
 

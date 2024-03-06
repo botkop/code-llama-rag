@@ -8,7 +8,7 @@ from sentence_transformers import SentenceTransformer, util
 
 
 class CodeChunker(ast.NodeVisitor):
-    """This class takes a filename and a code string and returns a list of code chunks.
+    """This class reads a file and returns a list of code chunks.
     A code chunk is a dictionary with the following keys:
     - file: the filename
     - code: the code
@@ -16,9 +16,10 @@ class CodeChunker(ast.NodeVisitor):
     Note that this is a shallow parser, and we only visit the top level function and class nodes, not their children.
     """
 
-    def __init__(self, filename, code):
+    def __init__(self, filename):
         self.filename = filename
-        self.code = code
+        with open(filename, "r", encoding="utf-8") as f:
+            self.code = f.read()
         self.lines = self.code.splitlines()
         self.locations = []
 
@@ -88,10 +89,8 @@ class FolderChunker:
     def chunk_folder(self):
         chunks = []
         for file in self.find_files(self.folder, self.pattern):
-            with open(file, "r", encoding="utf-8") as f:
-                code = f.read()
-                chunker = self.chunker(file, code)
-                chunks.extend(chunker.get_chunks())
+            chunker = self.chunker(file)
+            chunks.extend(chunker.get_chunks())
         df = pd.DataFrame(chunks)
         return df
 
@@ -112,12 +111,15 @@ class ContextBuilder:
             self.model = model_or_model_name
         self.code_embeddings = self.model.encode(self.chunk_df["code"].values.tolist())
 
-    def get_context_from_regex(self, regex):
-        matches = self.chunk_df[self.chunk_df["code"].str.contains(regex) | self.chunk_df["file"].str.contains(regex)]
-        matches.loc[:, "code"] = "@@@File: " + matches["file"] + "\n" + matches["code"]
-        context = matches["code"].values.tolist()
+    def assemble_context_from_df(self, df):
+        df.loc[:, "context"] = "@@@File: " + df["file"] + "\n" + df["code"]
+        context = df["context"].values.tolist()
         context = "\n\n".join(context)
         return context
+
+    def get_context_from_regex(self, regex):
+        matches = self.chunk_df[self.chunk_df["code"].str.contains(regex) | self.chunk_df["file"].str.contains(regex)]
+        return self.assemble_context_from_df(matches)
 
     def get_context_from_embedding(self, query, top_k=10, min_score=0.25):
         query_embedding = self.model.encode(query)
@@ -131,15 +133,13 @@ class ContextBuilder:
         # sort top_idxs so that chunks from same file are listed in order, regardless of score ???
 
         selected_chunks_df = self.chunk_df.iloc[top_idxs]
-        selected_chunks_df.loc[:, "code"] = "@@@File: " + selected_chunks_df["file"] + "\n" + selected_chunks_df["code"]
-        context = selected_chunks_df["code"].values.tolist()
-        context = "\n\n".join(context)
-        return context
+        return self.assemble_context_from_df(selected_chunks_df)
 
     def get_context(self, query, top_k=10, min_score=0.25):
         """
         Get the context for a query.
-        If the query is a regex, return the context for the regex. Otherwise, return the context for the embedding.
+        If the query is a regex, return the context obtained from regex matching. 
+        Otherwise, return the context from the embedding.
         """
         pattern = r"^'([^']+)'"
         match = re.search(pattern, query)

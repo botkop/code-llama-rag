@@ -91,6 +91,8 @@ class FolderChunker:
         for file in self.find_files(self.folder, self.pattern):
             chunker = self.chunker(file)
             chunks.extend(chunker.get_chunks())
+        if len(chunks) == 0:
+            raise ValueError(f"No code chunks found in {self.folder}")
         df = pd.DataFrame(chunks)
         return df
 
@@ -112,8 +114,7 @@ class ContextBuilder:
         self.code_embeddings = self.model.encode(self.chunk_df["code"].values.tolist())
 
     def assemble_context_from_df(self, df):
-        df.loc[:, "context"] = "@@@File: " + df["file"] + "\n" + df["code"]
-        context = df["context"].values.tolist()
+        context = "@@@File: " + df["file"] + "\n" + df["code"]
         context = "\n\n".join(context)
         return context
 

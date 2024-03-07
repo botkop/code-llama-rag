@@ -51,7 +51,9 @@ class CodeChunker(ast.NodeVisitor):
         end_lineno = node.end_lineno
         self.locations.append((start_lineno, end_lineno, type(node).__name__))
 
-    def add_chunk(self, chunks: list, start_lineno: int, end_lineno: int, node_type: str) -> None:
+    def add_chunk(
+        self, chunks: list, start_lineno: int, end_lineno: int, node_type: str
+    ) -> None:
         """
         Add a code chunk to the chunks list.
 
@@ -122,7 +124,7 @@ class FolderChunker:
         - file: the filename
         - code: the code
         - type: the type of the code (e.g. function, class, rubble)
-        
+
         :return: the dataframe
         """
         chunks = []
@@ -139,11 +141,14 @@ class ContextBuilder:
     """
     This class builds a context for a code search query.
     """
+
     def __init__(
         self,
         folder: str,
         include_rubble: bool = False,
-        model_or_model_name: Union[str|SentenceTransformer] = "flax-sentence-embeddings/st-codesearch-distilroberta-base",
+        model_or_model_name: Union[
+            str | SentenceTransformer
+        ] = "flax-sentence-embeddings/st-codesearch-distilroberta-base",
     ):
         """
         Initialize the context builder.
@@ -180,7 +185,10 @@ class ContextBuilder:
         :param regex: the regex
         :return: the context
         """
-        matches = self.chunk_df[self.chunk_df["code"].str.contains(regex) | self.chunk_df["file"].str.contains(regex)]
+        matches = self.chunk_df[
+            self.chunk_df["code"].str.contains(regex)
+            | self.chunk_df["file"].str.contains(regex)
+        ]
         return self.assemble_context_from_df(matches)
 
     def get_context_from_embedding(self, query, top_k=10, min_score=0.25):
@@ -210,7 +218,7 @@ class ContextBuilder:
     def get_context(self, query, top_k=10, min_score=0.25):
         """
         Get the context for a query.
-        If the query is a regex (string within single quotes), return the context obtained from regex matching. 
+        If the query is a regex (string within single quotes), return the context obtained from regex matching.
         Otherwise, return the context from the embedding.
 
         :param query: the query

@@ -8,10 +8,9 @@ It consists of 2 classes:
 - CodeTalker
 
 The purpose of the context builder is to select the most relevant pieces of code for a given question or context hint.
-The context builder reads a folder with python code upon instantiation,
-and parses every python file in the folder structure.
-The python files are chunked into pieces of code (class definitions, function definitions, and the rest of the code).
-Every chunk is then embedded with a sentence transfomer model.
+The context builder reads a folder with python code, and parses every python file in the folder structure.
+The python files are chunked into pieces of code: class definitions, function definitions, and the rest of the code. By default the 'rest of the code' will be labeled 'rubble' and will not be included in the context. You can change this by setting the `include_rubble` parameter to `True` when instantiating the context builder.
+Next, every chunk is embedded with a sentence transfomer model.
 
 The code talker uses the code-llama model and tokenizer, and the context builder to answer questions about the code.
 

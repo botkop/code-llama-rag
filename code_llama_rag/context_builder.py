@@ -51,6 +51,11 @@ class CodeChunker(ast.NodeVisitor):
         end_lineno = node.end_lineno
         self.locations.append((start_lineno, end_lineno, type(node).__name__))
 
+    def visit_With(self, node: ast.With) -> None:
+        start_lineno = node.lineno - 1
+        end_lineno = node.end_lineno
+        self.locations.append((start_lineno, end_lineno, type(node).__name__))
+
     def add_chunk(
         self, chunks: list, start_lineno: int, end_lineno: int, node_type: str
     ) -> None:
@@ -103,7 +108,7 @@ class FolderChunker:
         self.chunker = CodeChunker
 
     @classmethod
-    def find_files(cls, directory: str, pattern: str) -> Generator[str]:
+    def find_files(cls, directory: str, pattern: str) -> Generator:
         """
         Find files in a directory that match a pattern.
 

@@ -1,6 +1,10 @@
 
 # project code-llama-rag
 
+<p align="center">
+<img src="img/pyllama.png" width="200" height="200">
+</p>
+
 This project is a simple library for doing RAG with code-llama.
 
 It consists of 2 classes:

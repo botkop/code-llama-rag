@@ -2,7 +2,7 @@
 # project code-llama-rag
 
 <p align="center">
-<img src="img/pyllama.png" width="200" height="200">
+<img src="img/pyllama.png" width="200" height="200" style="border-radius: 50%;">
 </p>
 
 This project is a simple library for doing RAG with code-llama.
